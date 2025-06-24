@@ -1,0 +1,58 @@
+@page "/update"
+@rendermode InteractiveServer
+@using Brism
+@using Brism = Brism.CodeBlock
+
+<PageTitle>C# Examples - Brism Demo</PageTitle>
+
+
+<h1>C# Code Examples</h1>
+
+<div class="mb-4">
+    <h3>Sample Code to Update</h3>
+	<button class="btn btn-primary" @onclick="UpdateCode">Update Code</button>
+    <CodeBlock EnableCodeUpdates=true Code=@Code  Language="CodeLanguage.CSharp"  />
+</div>
+
+<div class="mb-4">
+	<CodeBlock EnableCodeUpdates=true Code="py1 __init.py" EnableCommandLine=true Language="CodeLanguage.C" EnableLineNumbers=false  />
+	<CodeBlock Code="py2 __init.py" EnableCommandLine=true Language="CodeLanguage.C" EnableLineNumbers=false />
+</div>
+
+@code {
+	private bool codeToggle = false;
+
+	private string Code => codeToggle ? @"
+		// Records
+		public record Person(string FirstName, string LastName, int Age);
+
+		// Pattern matching
+		public static string GetDisplayName(Person person) => person switch
+		{
+			{ FirstName: ""John"", LastName: ""Doe"" } => ""JD"",
+			{ FirstName: var first, LastName: var last } => $""{first[0]}{last[0]}"",
+			null => ""Unknown""
+		};
+
+		// LINQ and Collections
+		public class DataProcessor
+		{
+			public IEnumerable<int> ProcessNumbers(IEnumerable<int> numbers)
+			{
+				return numbers
+					.Where(n => n > 0)
+					.OrderBy(n => n)
+					.Select(n => n * 2);
+			}
+		}"
+		:@"
+		// Updated Code Records
+		public record UpdatedPerson(string FirstName, string LastName, DateTime Birthday);
+		";
+
+	public void UpdateCode(MouseEventArgs args)
+	{
+		codeToggle = !codeToggle;
+		StateHasChanged();
+	}
+}
