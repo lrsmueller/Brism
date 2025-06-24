@@ -1,74 +1,98 @@
 @inject PrismJsInterop PrismJsInterop
+@if (EnableCodeUpdates)
+{
+	<div @ref="unmanagedCodeBlock"></div>
+} else
+{
+	<pre class="@GetPreClasses()" @attributes="@GetAttributes()">
+		<code class=@GetCss()>
+	        @Code
+	    </code>
+	</pre>
+}
 
-<pre class="@GetPreClasses()" @attributes="@GetAttributes()">
-    <code class=@GetCss()>
-        @Code
-    </code>
-</pre>
 
 @code {
-    [Parameter, EditorRequired]
-    public string Code { get; set; }
+	[Parameter, EditorRequired]
+	public string Code { get; set; }
 
-    [Parameter, EditorRequired]
-    public CodeLanguage Language { get; set; }
+	[Parameter, EditorRequired]
+	public CodeLanguage Language { get; set; }
 
-    [Parameter]
-    public string Css { get; set; } = string.Empty;
+	[Parameter]
+	public string Css { get; set; } = string.Empty;
 
-    [Parameter]
-    public bool EnableLineNumbers { get; set; } = true;
+	[Parameter]
+	public bool EnableLineNumbers { get; set; } = true;
 
-    [Parameter]
-    public bool EnableCommandLine { get; set; } = false;
+	[Parameter]
+	public bool EnableCommandLine { get; set; } = false;
 
-    [Parameter]
-    public string CommandLineUser { get; set; } = "User";
+	[Parameter]
+	public string CommandLineUser { get; set; } = "User";
 
-    [Parameter]
-    public string CommandLineHost { get; set; } = "Host";
+	[Parameter]
+	public string CommandLineHost { get; set; } = "Host";
 
-    private string GetLanguage() => $"language-{Language.ToLanguageString()}";
+	[Parameter]
+	public bool EnableCodeUpdates { get; set; } = false;
 
-    private string GetCss() => $"{GetLanguage()} {Css}";
+	private string GetLanguage() => $"language-{Language.ToLanguageString()}";
 
-    private string GetPreClasses()
-    {
-        var classes = new List<string>();
+	private string GetCss() => $"{GetLanguage()} {Css}";
 
-        if (EnableLineNumbers)
-        {
-            classes.Add("line-numbers");
-        }
+	private string GetPreClasses()
+	{
+		var classes = new List<string>();
 
-        if (EnableCommandLine)
-        {
-            classes.Add("command-line");
-        }
+		if (EnableLineNumbers)
+		{
+			classes.Add("line-numbers");
+		}
 
-        return string.Join(" ", classes);
-    }
+		if (EnableCommandLine)
+		{
+			classes.Add("command-line");
+		}
 
-    private Dictionary<string, object> GetAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
+		return string.Join(" ", classes);
+	}
 
-        if (EnableCommandLine)
-        {
-            attributes.Add("data-user", CommandLineUser);
-            attributes.Add("data-host", CommandLineHost);
-        }
+	private Dictionary<string, object> GetAttributes()
+	{
+		var attributes = new Dictionary<string, object>();
 
-        return attributes;
-    }
+		if (EnableCommandLine)
+		{
+			attributes.Add("data-user", CommandLineUser);
+			attributes.Add("data-host", CommandLineHost);
+		}
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await PrismJsInterop.HighlightAsync();
-        }
+		return attributes;
+	}
 
-        await base.OnAfterRenderAsync(firstRender);
-    }
+	private ElementReference unmanagedCodeBlock;
+
+	private string _previousCode = string.Empty;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!EnableCodeUpdates && firstRender)
+		{
+			await PrismJsInterop.HighlightAsync();
+		} 
+		else if (EnableCodeUpdates && (firstRender || _previousCode != Code))
+		{
+			#if NET9_0_OR_GREATER
+			if (!RendererInfo.IsInteractive)
+			{
+				throw new ArgumentException("requires InteractiveRenderMode", nameof(EnableCodeUpdates));
+			}
+			#endif
+			_previousCode = Code;
+			await PrismJsInterop.HighlightAsync(unmanagedCodeBlock, Code, GetCss(), GetPreClasses(), GetAttributes());
+		}
+		
+		await base.OnAfterRenderAsync(firstRender);
+	}
 }
