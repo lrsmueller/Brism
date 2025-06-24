@@ -1,30 +1,24 @@
-@page "/update"
-@rendermode InteractiveServer
+@page "/updateJS"
+
 @using Brism
 @using System.Diagnostics
 
-<PageTitle>C# Examples - Brism Demo</PageTitle>
+<PageTitle>Code Example Update - Brism Umanaged Update</PageTitle>
 
 
-<h1>C# Code Examples</h1>
+<h1>Code Update - Brism Umanaged Update</h1>
 
 <div class="mb-4">
     <h3>Sample Code to Update</h3>
 	<button class="btn btn-primary" @onclick="UpdateCode">Update Code</button>
-	<CodeBlock EnableCodeUpdates=true Code=@Code Language="CodeLanguage.CSharp" @ref="ind" />
-	<CodeBlock Code=@Code Language="CodeLanguage.CSharp" @key=Code @ref="key" />
-</div>
-
-<div class="mb-4">
-	<CodeBlock EnableCodeUpdates=true Code="py1 __init.py" EnableCommandLine=true Language="CodeLanguage.C" EnableLineNumbers=false  />
-	<CodeBlock Code="py2 __init.py" EnableCommandLine=true Language="CodeLanguage.C" EnableLineNumbers=false />
+	<CodeBlock EnableCodeUpdates=true Code=@Code Language="CodeLanguage.CSharp" @ref="jsCode" />
 </div>
 
 @code {
-	private bool codeToggle = false;
 
-	private CodeBlock ind { get; set; }
-	private CodeBlock key { get; set; }
+	private CodeBlock? jsCode { get; set; }
+
+	private bool codeToggle = false;
 
 	private string Code => codeToggle ? @"
 		// Records
@@ -54,12 +48,28 @@
 		public record UpdatedPerson(string FirstName, string LastName, DateTime Birthday);
 		";
 
+	private Stopwatch jsTimer = new();
+
+
 	public void UpdateCode(MouseEventArgs args)
 	{
 		codeToggle = !codeToggle;
-		Debug.WriteLine("Started both");
-		ind.Timer.Start();
-		key.Timer.Start();
+		Debug.WriteLine($"Started {nameof(UpdateJS)}");
+		jsCode.Timer.Start();
 		StateHasChanged();
+		
+	}
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		jsTimer.Start();
+	}
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+		jsTimer.Stop();
+		Debug.WriteLine($"Page {nameof(UpdateJS)} Timer: {jsTimer.ElapsedTicks}");
 	}
 }

@@ -1,14 +1,16 @@
-export function highlightAll() {
+export function highlightAll(objRef) {
     return new Promise((resolve, reject) => {
         if (typeof Prism !== 'undefined') {
-            Prism.highlightAll();
+			Prism.highlightAll();
+			objRef.invokeMethodAsync("StopTimer");
             resolve();
         } else {
             // Wait for Prism to be available
             const checkPrism = setInterval(() => {
                 if (typeof Prism !== 'undefined') {
                     clearInterval(checkPrism);
-                    Prism.highlightAll();
+					Prism.highlightAll();
+					objRef.invokeMethodAsync("StopTimer");
                     resolve();
                 }
             }, 100);
@@ -22,14 +24,14 @@ export function highlightAll() {
     });
 }
 
-export function highlightCode(element,
+export function highlightCode(objRef,element,
 	code,
 	codeCssClass,
 	preCssClass,
 	preAttributes) {
 	return new Promise((resolve, reject) => {
 		if (typeof Prism !== 'undefined') {
-			renderCode(element,
+			renderCode(objRef,element,
 				code,
 				codeCssClass,
 				preCssClass,
@@ -40,7 +42,7 @@ export function highlightCode(element,
 			const checkPrism = setInterval(() => {
 				if (typeof Prism !== 'undefined') {
 					clearInterval(checkPrism);
-					renderCode(element,
+					renderCode(objRef,element,
 						code,
 						codeCssClass,
 						preCssClass,
@@ -57,6 +59,7 @@ export function highlightCode(element,
 		}
 
 		function renderCode(
+			objRef,
 			element,
 			code,
 			codeCssClass,
@@ -79,6 +82,7 @@ export function highlightCode(element,
 			element.appendChild(pre);
 
 			Prism.highlightElement(codeElem);
+			objRef.invokeMethodAsync("StopTimer");
 		}
 	});
 }

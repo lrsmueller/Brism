@@ -1,4 +1,7 @@
+@using System.Diagnostics
+@using Microsoft.JSInterop
 @inject PrismJsInterop PrismJsInterop
+
 @if (EnableCodeUpdates)
 {
 	<div @ref="unmanagedCodeBlock"></div>
@@ -75,11 +78,34 @@
 
 	private string _previousCode = string.Empty;
 
+	public Stopwatch Timer { get; set; } = new();
+
+	private DotNetObjectReference<CodeBlock>? objRef;
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		objRef = DotNetObjectReference.Create(this);
+		var component = EnableCodeUpdates ? "ind" : "key";
+		Debug.WriteLine($"Init: {component}");
+		Timer.Start();
+	}
+	
+
+
+	[JSInvokable("StopTimer")]
+	public void StopTimer()
+	{
+		Timer.Stop();
+		var component = EnableCodeUpdates ? "ind" : "key";
+		Debug.WriteLine($"Stopped: {component}: {Timer.ElapsedTicks}");
+	}
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!EnableCodeUpdates && firstRender)
 		{
-			await PrismJsInterop.HighlightAsync();
+			await PrismJsInterop.HighlightAsync(objRef);
 		} 
 		else if (EnableCodeUpdates && (firstRender || _previousCode != Code))
 		{
@@ -90,7 +116,7 @@
 			}
 			#endif
 			_previousCode = Code;
-			await PrismJsInterop.HighlightAsync(unmanagedCodeBlock, Code, GetCss(), GetPreClasses(), GetAttributes());
+			await PrismJsInterop.HighlightAsync(objRef,unmanagedCodeBlock, Code, GetCss(), GetPreClasses(), GetAttributes());
 		}
 		
 		await base.OnAfterRenderAsync(firstRender);

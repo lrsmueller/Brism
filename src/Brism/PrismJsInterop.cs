@@ -13,18 +13,18 @@ public class PrismJsInterop : IAsyncDisposable
 			"import", "./_content/Brism/prismInterop.js").AsTask());
 	}
 
-	public async ValueTask HighlightAsync()
+	public async ValueTask HighlightAsync(DotNetObjectReference<CodeBlock> objRef)
 	{
 		var module = await moduleTask.Value;
 
-		await module.InvokeVoidAsync("highlightAll");
+		await module.InvokeVoidAsync("highlightAll", objRef);
 	}
 
-	public async ValueTask HighlightAsync(ElementReference elementReference, string code, string CodeCssClass, string PreCssClass, Dictionary<string, object> PreAttributes)
+	public async ValueTask HighlightAsync(DotNetObjectReference<CodeBlock> objRef, ElementReference elementReference, string code, string CodeCssClass, string PreCssClass, Dictionary<string, object> PreAttributes)
 	{
 		var module = await moduleTask.Value;
 
-		await module.InvokeVoidAsync("highlightCode", elementReference, code, CodeCssClass, PreCssClass, PreAttributes);
+		await module.InvokeVoidAsync("highlightCode", objRef, elementReference, code, CodeCssClass, PreCssClass, PreAttributes);
 	}
 
 	public async ValueTask DisposeAsync()

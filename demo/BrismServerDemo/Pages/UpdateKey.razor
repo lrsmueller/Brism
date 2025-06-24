@@ -1,26 +1,23 @@
-@page "/update"
+@page "/updateKey"
 
 @using Brism
-@using Brism = Brism.CodeBlock
+@using System.Diagnostics
 
-<PageTitle>C# Examples - Brism Demo</PageTitle>
+<PageTitle>Code Example Update - Brism @@Key Update</PageTitle>
 
 
-<h1>C# Code Examples</h1>
+<h1>Code Example Update - Brism @@Key Update</h1>
 
 <div class="mb-4">
     <h3>Sample Code to Update</h3>
 	<button class="btn btn-primary" @onclick="UpdateCode">Update Code</button>
-    <CodeBlock EnableCodeUpdates=true Code=@Code
-    Language="CodeLanguage.CSharp"></CodeBlock>
-</div>
-
-<div class="mb-4">
-	<CodeBlock EnableCodeUpdates=true Code="py1 __init.py" EnableCommandLine=true Language="CodeLanguage.C" EnableLineNumbers=false />
-	<CodeBlock Code="py2 __init.py" EnableCommandLine=true Language="CodeLanguage.C" EnableLineNumbers=false />
+	<CodeBlock Code=@Code Language="CodeLanguage.CSharp" @key=CodeKey @ref="keyCode" />
 </div>
 
 @code {
+
+	private CodeBlock? keyCode { get; set; }
+	private int CodeKey => codeToggle ? 0 : 1;
 	private bool codeToggle = false;
 
 	private string Code => codeToggle ? @"
@@ -50,10 +47,26 @@
 		// Updated Code Records
 		public record UpdatedPerson(string FirstName, string LastName, DateTime Birthday);
 		";
+	private Stopwatch keyTimer = new();
 
 	public void UpdateCode(MouseEventArgs args)
 	{
 		codeToggle = !codeToggle;
+		Debug.WriteLine($"Started Update {nameof(UpdateKey)}");
+		keyTimer.Start();
 		StateHasChanged();
+	}
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		keyTimer.Start();
+	}
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+		keyTimer.Stop();
+		Debug.WriteLine($"Page {nameof(UpdateKey)} Timer: {keyTimer.ElapsedTicks}");
 	}
 }
