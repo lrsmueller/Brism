@@ -138,6 +138,7 @@ Here's what you can tweak:
 | CommandLineUser | Custom prompt user | "User" |
 | CommandLineHost | Custom prompt host | "Host" |
 | Css | Extra CSS if you need it | "" |
+| EnableCodeUpdates  | Allows you to change the code after rendering. Requires InteractiveRenderMode | false |
 
 ## Languages? We've Got Them All!
 
